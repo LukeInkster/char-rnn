@@ -1,6 +1,6 @@
 # Learning to Debate
 
-This report covers a project undertaken as part of COMP 421 - Machine Learning. The project involved the use of character wise recurrent neural networks to learn the structure of US presidential debates at a character level. This project makes use of [Karpathy's char-rnn project](https://github.com/karpathy/char-rnn) which provides implementation of three recurrent neural network systems implemented in Lua.
+This report covers a project undertaken as part of COMP 421 - Machine Learning. The project involved the use of character wise recurrent neural networks to learn the structure of US presidential debates at a character level. This project makes use of [Karpathy's char-rnn project](https://github.com/karpathy/char-rnn) which provides implementation of three recurrent neural network systems implemented in Lua. The motivation for this project was the [DeepDrumpf](https://twitter.com/deepdrumpf) Twitter bot which generates tweets in the style of Donald Trump.
 
 #### Collecting Data
 The debate data for this project takes the form of text file transcripts collected from a couple of sources. The 2008 and 2012 presidential debates each consisted of four debates which were sourced, in text form, from the [Commission on Presidential Debates](http://www.debates.org/index.php?page=debate-transcripts). At the time of writing, the Commission has not made transcripts available for 2016's presidential debates. Conveniently, the Washington Post has created transcripts for the [first](https://www.washingtonpost.com/news/the-fix/wp/2016/09/26/the-first-trump-clinton-presidential-debate-transcript-annotated/), [second](https://www.washingtonpost.com/news/the-fix/wp/2016/10/09/everything-that-was-said-at-the-second-donald-trump-vs-hillary-clinton-debate-highlighted/), and [third](https://www.washingtonpost.com/news/the-fix/wp/2016/10/19/the-final-trump-clinton-debate-transcript-annotated/) debates of the 2016 election in a format which matches those from the Commission. When concatenated, the transcripts for these 11 debates amount to 1.2MB of data. The Shakespeare dataset provided by Karpathy for testing is 1.0MB so this debate dataset should be sufficient.
@@ -69,10 +69,12 @@ After two epochs, the networks have all learned some of the most basic rules abo
 ## Shakespearean Debates
 I decided to see if I could train the network on both debates and on the Shakespeare data provided in with the network code. The first, and easiest to implement, approach I tried simply took a concatenation of the two files and ran this through the trainer as usual. I was expecting to get outputs which formed some Shakespearean-debate hybrid but the actual result was perhaps more interesting. I found the sample produced wildly different outputs for the same trained network depending on the seed. It seemed to slip into the format of either Shakespeare or a debate early on, then stick to this. Even the lanugage would match with whichever form it chose. Further experimentation found that the network could be primed with phrases with high density of terms expected of one of the formats but not in the other. The network would then continue on in that form for the rest of the sample. The following are two examples of this, sampling from the same network just with changes to the primetext parameter:
 
+###### Command
 ```
 $ th sample.lua lstmDebateShakespeareDefault/lm_lstm_epoch50.00_1.2423.t7 -primetext 'OBAMA: Making a claim about Iraq. Maybe somthing about war and the United States of America'
 ```
 
+###### Output
 ```
 OBAMA: Making a claim about Iraq. Maybe somthing about war and the United States of America. He said my jobs because I have gone to create might be wisely not getting their city one fortholate, under $250,000 a year. The Lating Reagat live, she didn't have closing Americans for them and intellect small businesses.
 
@@ -97,10 +99,12 @@ I would putter the campaign of wantor regardles aren.
 LEHRER: I think God as a governor of Republicans rempsions on a balanced budget so reason ab, yes, contract us to grow to...
 ```
 
+###### Command
 ```
 $ th sample.lua lstmDebateShakespeareDefault/lm_lstm_epoch50.00_1.2423.t7 -primetext $'ROMEO:\nTalking about thy king and thy castle'
 ```
 
+###### Output
 ```
 ROMEO:
 Talking about thy king and thy castle;
