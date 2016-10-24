@@ -1,6 +1,6 @@
 # Learning to Debate
 
-This report covers a project undertaken as part of COMP 421 - Machine Learning. The project involved the use of character wise recurrent neural networks. This project makes use of 
+This report covers a project undertaken as part of COMP 421 - Machine Learning. The project involved the use of character wise recurrent neural networks. This project makes use of [Karpathy's char-rnn project](https://github.com/karpathy/char-rnn) which provides implementation of three recurrent neural network systems implemented in Lua.
 
 #### Collecting Data
 The debate data for this project takes the form of text file transcripts collected from a couple of sources. The 2008 and 2012 presidential debates each consisted of four debates which were sourced, in text form, from the [Commission on Presidential Debates](http://www.debates.org/index.php?page=debate-transcripts). At the time of writing, the Commission has not made transcripts available for 2016's presidential debates. Conveniently, the Washington Post has created transcripts for the [first](https://www.washingtonpost.com/news/the-fix/wp/2016/09/26/the-first-trump-clinton-presidential-debate-transcript-annotated/), [second](https://www.washingtonpost.com/news/the-fix/wp/2016/10/09/everything-that-was-said-at-the-second-donald-trump-vs-hillary-clinton-debate-highlighted/), and [third](https://www.washingtonpost.com/news/the-fix/wp/2016/10/19/the-final-trump-clinton-debate-transcript-annotated/) debates of the 2016 election in a format which matches those from the Commission. When concatenated, the transcripts for these 11 debates amount to 1.2MB of data. The Shakespeare dataset provided by Karpathy for testing is 1.0MB so this debate dataset should be sufficient.
@@ -9,10 +9,61 @@ The debate data for this project takes the form of text file transcripts collect
 On the default settings, a network took 2 to 3 hours to train on my gpu-less laptop. This wasn't going to work for all the different combinations of settings I wanted to try. AWS seemed a good solution to the problem of "Not enough compute power" so I created myself an account and followed a [set of instructions](https://github.com/brotchie/torch-ubuntu-gpu-ec2-install) provided by James Bortchie which outline how to get a server instance set up to run the char-rnn code. In fact, if anyone wants to re-run my analysis, you can simply follow the steps in that tutorial and swap out the final ```git clone``` stage with a clone of [my fork of the repository](https://github.com/LukeInkster/char-rnn/). I settled on a g2.2xlarge instance running in the Sydney datacenter which provides a Xeon CPU and a NVIDIA GPU with 1,536 cores and 4GB of VRAM. This brought the time to train a network on the default settings down to the 20 to 30 minute range, much more convenient for trying out a variety of combinations.
 
 ## Which network debates best?
-#### RNN - Recurrent Neural Network
-#### LSTM - Long Short Term Memory
-#### GRU - Gated Recurrent Network
+The code provided by Karpathy offers three different neural network models:
+- Simple Recurrent Neural Network (RNN)
+- Long Short Term Memory (LSTM)
+- Gated Recurrent Unit (GRU)
 
+I want to get an idea of the differences between these networks and to find which performs best on the debate data. The differences between the networks gradually shrink as the training progresses, and after a full run of 50 epochs it's not possible to tell the difference between the quality of samples from each network. After fewer runs however, there are some noticeable differences between these samples. The following are some examples after two epochs of training for each network. 
+#### RNN - Recurrent Neural Network
+```
+My..
+
+I’d been who gon't deens.
+
+I wastes.
+
+ROMNEY: Ald us show, and Kertabelty, addieg one it a ladgues helaring. In John McCain of tickly, if. I salo incomely on is it. What saidicalitigation (plange the took atfory commonte is thinge, -- I sain in viliel inveriass beon. When fale araugn on that hond because?
+
+WALLACE: think that the cover in Wermend that a seal are very-sige time. And let's grougj it going to the ward a poacrutiof a goest.
+
+We've navory from it's what what, oo and He gates "owleds sere, nominit. And what the decanef the with al Qambownemal best to las. Lible. I'll neet eithifer, John McCain this dedent take such of investan. That's, I alto I have in think thank. They'll with certary liods holes offureving the tax now is to hele.
+
+Now, agd orreaction. He I's the providing Ill) as didn't get and lot to gover and American with they one any tow thank, "an $2Okiss to adlencentwing ho’m. Senitaring invulling umericals.
+```
+#### LSTM - Long Short Term Memory
+```
+M’ aly be.
+
+ERDTOT: That's other internowil this. And I what to have agrinablet. I lon't it it a mading, and so cries and the Amenial? And see us noblung to both the agring.
+
+LLEINRE: Rund to ke the libted to has. Thuild president.
+
+And I keable the just didinusination. Shered, abore way the Amediacy in Bedicate..
+
+RLANATZ: Clat Bour in fumiil of ut hake cole that I'll, not's get to this incrovetioniant going to the wand Remmablry. And he wiples out text, let in whe what wind the Simia Alaq, having we'pland have thighersial seford.
+
+MCCAIN: Let dible, with ne dither.
+
+Bugher sajion the at a stration of is this who call has Adenawar is have no beon poitieg pror me. And "why thing then it's to deal right miraw great of., I’s the tare to distrorlicy sigut har prone the presicenct in this with mole want the deplated there it, said tax not if. us to weald ary tow to and -- I houst out a phormmetion, wy need asdo we've grong to then I'm. And what here, mifhion fath forith abso wover what is in the wored.
+```
+#### GRU - Gated Recurrent Network
+```
+M�Us
+
+I’ll help. We need of the mids spost and toldible to making that whece'se that deal telred mades under the wlise offile Ofable, we've doard in to dollago. The people-way that.
+
+IFMIDETROMK
+. Chil, Senator Mmonez HeSsolom Romney secn teach.
+
+Eremural Senator Bute progress plan a tax plen of NALWALE: I think you, and you san America. You just viol and the peeped.
+
+We have have to cose fores worft our has now. I trahe Jire -- whee a hearth as prodraut of the issuate jobs are nich racal pers to dew-rately, counter toars for or.
+
+And I sair that Americans no country of Amerecant of goeds beroud some or matsiels, in Iran, take such presention country wioh our Gelatas o-. We're caoring to heve for the peoples freend out duys, the tax groad to ore coopleun-back, we are going empereenment crosicel inveredible and the president of the offiiliative to you, herversy on Nort poicharsates, I think to progry, and I've renord your melt houdd us is up and this of the days is to getting the time lead brieds.
+
+LEHRER: I fect to be nuy-defitire. And I looking who say, Dhabter, some peocge fuve of the high America lates, "ustion, I've got to good for the said-been intigarting. And Maracare, Jith, paidE. We're going to MeDady, betined healing this pusinie, buckoul tome in NACWasted in Iraq, Senigres trictions, and that is to reasuation. That's he bupp to he spendent plan -- it's a debute.
+```
 
 
 ## Shakespearean Debates
@@ -72,4 +123,4 @@ Proed this entrailant, problems!
 Culling you, for deaths!
 ```
 
-It seems the network has effectively learned two completely separate models which can be triggered with the right prime text.
+It seems the network has effectively learned two completely separate models which can be triggered with the right prime text. The network even maintains the Shakespearean format of line breaks after the speakers name and shorter lines in general when primed with talk of kings and castles. This is much different from the format of the sample when primed with talk of the United States of America and their wars.
