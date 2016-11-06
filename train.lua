@@ -312,6 +312,17 @@ for i = 1, iterations do
       loader.x_batches = loader.x_batchesShakespeare
       loader.nbatches = loader.nbatchesShakespeare
       loader.y_batches = loader.y_batchesShakespeare
+      if split_fractions[3] == 0 then 
+        -- catch a common special case where the user might not want a test set
+        loader.ntrain = math.floor(loader.nbatches * split_fractions[1])
+        loader.nval = loader.nbatches - loader.ntrain
+        loader.ntest = 0
+      else
+        -- divide data to train/val and allocate rest to test
+        loader.ntrain = math.floor(loader.nbatches * split_fractions[1])
+        loader.nval = math.floor(loader.nbatches * split_fractions[2])
+        loader.ntest = loader.nbatches - loader.nval - loader.ntrain -- the rest goes to test (to ensure this adds up exactly)
+      end
     end
 
     local epoch = i / loader.ntrain
