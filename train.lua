@@ -332,7 +332,7 @@ local onDebates = false;
 for i = 1, iterations do
     local epoch = i / loader.ntrain
     --
-    if (not onDebates) and epoch >= opt.switch_point then
+    if (not onDebates) and epoch >= (opt.max_epochs * opt.switch_point) then
       print('Changing to Debates')
       loader.x_batches = loader.x_batchesDebates
       loader.nbatches = loader.nbatchesDebates
