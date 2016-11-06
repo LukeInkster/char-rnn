@@ -332,7 +332,7 @@ for i = 1, iterations do
     local epoch = i / loader.ntrain
 
     --
-    if (not onShakespeare) and epoch == 5 then
+    if (not onShakespeare) and epoch >= (opt.max_epochs / 2) then
       print('Changing to Shakespeare')
       loader.x_batches = loader.x_batchesShakespeare
       loader.nbatches = loader.nbatchesShakespeare
