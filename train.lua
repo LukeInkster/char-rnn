@@ -328,7 +328,7 @@ local iterations = opt.max_epochs * loader.ntrain
 local iterations_per_epoch = loader.ntrain
 local loss0 = nil
 for i = 1, iterations do
-    --[[
+    --
     if i == 1 then
       loader.x_batches = loader.x_batchesShakespeare
       loader.nbatches = loader.nbatchesShakespeare
