@@ -18,7 +18,7 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
     local tensor_file = path.join(data_dir, 'data.t7')
 
     -- fetch file attributes to determine if we need to rerun preprocessing
-    local run_prepro = false
+    local run_prepro = true
     if not (path.exists(vocab_file) or path.exists(tensor_file)) then
         -- prepro files do not exist, generate them
         print('vocab.t7 and data.t7 do not exist. Running preprocessing...')
