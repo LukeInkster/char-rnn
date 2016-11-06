@@ -308,22 +308,22 @@ local iterations = opt.max_epochs * loader.ntrain
 local iterations_per_epoch = loader.ntrain
 local loss0 = nil
 for i = 1, iterations do
-    if i == 1 then
+    --[[if i == 1 then
       loader.x_batches = loader.x_batchesShakespeare
       loader.nbatches = loader.nbatchesShakespeare
       loader.y_batches = loader.y_batchesShakespeare
-      if split_fractions[3] == 0 then 
+      if split_sizes[3] == 0 then 
         -- catch a common special case where the user might not want a test set
-        loader.ntrain = math.floor(loader.nbatches * split_fractions[1])
+        loader.ntrain = math.floor(loader.nbatches * split_sizes[1])
         loader.nval = loader.nbatches - loader.ntrain
         loader.ntest = 0
       else
         -- divide data to train/val and allocate rest to test
-        loader.ntrain = math.floor(loader.nbatches * split_fractions[1])
-        loader.nval = math.floor(loader.nbatches * split_fractions[2])
+        loader.ntrain = math.floor(loader.nbatches * split_sizes[1])
+        loader.nval = math.floor(loader.nbatches * split_sizes[2])
         loader.ntest = loader.nbatches - loader.nval - loader.ntrain -- the rest goes to test (to ensure this adds up exactly)
       end
-    end
+    end--]]
 
     local epoch = i / loader.ntrain
 
