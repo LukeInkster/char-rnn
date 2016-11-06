@@ -223,7 +223,7 @@ end
 
 -- preprocessing helper function
 function prepro(x,y)
-    print(x)
+    --print(x)
     x = x:transpose(1,2):contiguous() -- swap the axes for faster indexing
     y = y:transpose(1,2):contiguous()
     if opt.gpuid >= 0 and opt.opencl == 0 then -- ship the input arrays to GPU
