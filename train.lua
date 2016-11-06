@@ -62,6 +62,7 @@ cmd:option('-accurate_gpu_timing',0,'set this flag to 1 to get precise timings w
 -- GPU/CPU
 cmd:option('-gpuid',0,'which gpu to use. -1 = use CPU')
 cmd:option('-opencl',0,'use OpenCL (instead of CUDA)')
+cmd:option('-switch_point',1,'The the proportion of training to take place on debate data before switching to Shakespeare')
 cmd:text()
 
 -- parse input params
@@ -327,16 +328,15 @@ local optim_state = {learningRate = opt.learning_rate, alpha = opt.decay_rate}
 local iterations = opt.max_epochs * loader.ntrain
 local iterations_per_epoch = loader.ntrain
 local loss0 = nil
-local onShakespeare = false;
+local onDebates = false;
 for i = 1, iterations do
     local epoch = i / loader.ntrain
-
     --
-    if (not onShakespeare) and epoch >= (opt.max_epochs / 2) then
-      print('Changing to Shakespeare')
-      loader.x_batches = loader.x_batchesShakespeare
-      loader.nbatches = loader.nbatchesShakespeare
-      loader.y_batches = loader.y_batchesShakespeare
+    if (not onDebates) and epoch >= opt.switch_point then
+      print('Changing to Debates')
+      loader.x_batches = loader.x_batchesDebates
+      loader.nbatches = loader.nbatchesDebates
+      loader.y_batches = loader.y_batchesDebates
       if split_sizes[3] == 0 then 
         -- catch a common special case where the user might not want a test set
         loader.ntrain = math.floor(loader.nbatches * split_sizes[1])
@@ -351,7 +351,7 @@ for i = 1, iterations do
 
       loader.split_sizes = {loader.ntrain, loader.nval, loader.ntest}
       loader.batch_ix = {0,0,0}
-      onShakespeare = true
+      onDebates = true
     end--]]
 
     local timer = torch.Timer()
