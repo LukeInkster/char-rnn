@@ -332,7 +332,7 @@ for i = 1, iterations do
     local epoch = i / loader.ntrain
 
     --
-    if !onShakespeare && epoch == 5 then
+    if (not onShakespeare) and epoch == 5 then
       print('Changing to Shakespeare')
       loader.x_batches = loader.x_batchesShakespeare
       loader.nbatches = loader.nbatchesShakespeare
