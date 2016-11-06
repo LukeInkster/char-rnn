@@ -8,9 +8,11 @@ CharSplitLMMinibatchLoader.__index = CharSplitLMMinibatchLoader
 function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, split_fractions)
     -- split_fractions is e.g. {0.9, 0.05, 0.05}
 
+    -- Self object extends the CharSplitLMMinibatchLoader object
     local self = {}
     setmetatable(self, CharSplitLMMinibatchLoader)
 
+    -- set up input and output files based on data_dir
     local input_file = path.join(data_dir, 'input.txt')
     local vocab_file = path.join(data_dir, 'vocab.t7')
     local tensor_file = path.join(data_dir, 'data.t7')
@@ -24,6 +26,8 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
     else
         -- check if the input file was modified since last time we 
         -- ran the prepro. if so, we have to rerun the preprocessing
+        -- (lfs is lua file system, and is used here to check how old
+        -- the input file is relative to the vocab and tensor files)
         local input_attr = lfs.attributes(input_file)
         local vocab_attr = lfs.attributes(vocab_file)
         local tensor_attr = lfs.attributes(tensor_file)
@@ -39,16 +43,29 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
     end
 
     print('loading data files...')
-    local data = torch.load(tensor_file)
-    self.vocab_mapping = torch.load(vocab_file)
+    local data = torch.load(tensor_file) -- Data is a sequence of numbers which represent letters
+    self.vocab_mapping = torch.load(vocab_file) -- Vocab maps the numbers to the letters
 
+    local debatesData = data:sub(1, 1228093)
+    local shakespeareData = data:sub(1228093, -1)
+    
     -- cut off the end so that it divides evenly
-    local len = data:size(1)
-    if len % (batch_size * seq_length) ~= 0 then
+    local debatesLen = debatesData:size(1)
+    if debatesLen % (batch_size * seq_length) ~= 0 then
         print('cutting off end of data so that the batches/sequences divide evenly')
-        data = data:sub(1, batch_size * seq_length 
-                    * math.floor(len / (batch_size * seq_length)))
+        debatesData = debatesData:sub(1, batch_size * seq_length 
+                    * math.floor(debatesLen / (batch_size * seq_length)))
     end
+    
+    -- cut off the end so that it divides evenly
+    local shakespeareLen = shakespeareData:size(1)
+    if shakespeareLen % (batch_size * seq_length) ~= 0 then
+        print('cutting off end of data so that the batches/sequences divide evenly')
+        shakespeareData = shakespeareData:sub(1, batch_size * seq_length 
+                    * math.floor(shakespeareLen / (batch_size * seq_length)))
+    end
+    
+    print(self.vocab_mapping)
 
     -- count vocab
     self.vocab_size = 0
@@ -61,13 +78,25 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
     self.batch_size = batch_size
     self.seq_length = seq_length
 
-    local ydata = data:clone()
-    ydata:sub(1,-2):copy(data:sub(2,-1))
-    ydata[-1] = data[1]
-    self.x_batches = data:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
-    self.nbatches = #self.x_batches
-    self.y_batches = ydata:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
-    assert(#self.x_batches == #self.y_batches)
+    local ydataDebates = debatesData:clone()
+    ydataDebates:sub(1,-2):copy(debatesData:sub(2,-1))
+    ydataDebates[-1] = debatesData[1]
+    self.x_batchesDebates = debatesData:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
+    self.nbatchesDebates = #self.x_batchesDebates
+    self.y_batchesDebates = ydataDebates:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
+    assert(#self.x_batchesDebates == #self.y_batchesDebates)
+
+    local ydataShakespeare = shakespeareData:clone()
+    ydataShakespeare:sub(1,-2):copy(shakespeareData:sub(2,-1))
+    ydataShakespeare[-1] = shakespeareData[1]
+    self.x_batchesShakespeare = shakespeareData:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
+    self.nbatchesShakespeare = #self.x_batchesShakespeare
+    self.y_batchesShakespeare = ydataShakespeare:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
+    assert(#self.x_batchesShakespeare == #self.y_batchesShakespeare)
+    
+    self.x_batches = self.x_batchesDebates
+    self.nbatches = self.nbatchesDebates
+    self.y_batches = self.y_batchesDebates
 
     -- lets try to be helpful here
     if self.nbatches < 50 then
