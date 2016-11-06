@@ -327,9 +327,13 @@ local optim_state = {learningRate = opt.learning_rate, alpha = opt.decay_rate}
 local iterations = opt.max_epochs * loader.ntrain
 local iterations_per_epoch = loader.ntrain
 local loss0 = nil
+local onShakespeare = false;
 for i = 1, iterations do
+    local epoch = i / loader.ntrain
+
     --
-    if i == 1 then
+    if !onShakespeare && epoch == 5 then
+      print('Changing to Shakespeare')
       loader.x_batches = loader.x_batchesShakespeare
       loader.nbatches = loader.nbatchesShakespeare
       loader.y_batches = loader.y_batchesShakespeare
@@ -347,9 +351,8 @@ for i = 1, iterations do
 
       loader.split_sizes = {loader.ntrain, loader.nval, loader.ntest}
       loader.batch_ix = {0,0,0}
+      onShakespeare = true
     end--]]
-
-    local epoch = i / loader.ntrain
 
     local timer = torch.Timer()
     local _, loss = optim.rmsprop(feval, params, optim_state)
