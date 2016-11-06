@@ -94,9 +94,13 @@ function CharSplitLMMinibatchLoader.create(data_dir, batch_size, seq_length, spl
     self.y_batchesShakespeare = ydataShakespeare:view(batch_size, -1):split(seq_length, 2)  -- #rows = #batches
     assert(#self.x_batchesShakespeare == #self.y_batchesShakespeare)
     
-    self.x_batches = self.x_batchesShakespeare
-    self.nbatches = self.nbatchesShakespeare
-    self.y_batches = self.y_batchesShakespeare
+    --self.x_batches = self.x_batchesShakespeare
+    --self.nbatches = self.nbatchesShakespeare
+    --self.y_batches = self.y_batchesShakespeare
+    
+    self.x_batches = self.x_batchesDebates
+    self.nbatches = self.nbatchesDebates
+    self.y_batches = self.y_batchesDebates
 
     -- lets try to be helpful here
     if self.nbatches < 50 then

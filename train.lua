@@ -109,6 +109,25 @@ end
 
 -- create the data loader class
 local loader = CharSplitLMMinibatchLoader.create(opt.data_dir, opt.batch_size, opt.seq_length, split_sizes)
+--[[
+loader.x_batches = loader.x_batchesShakespeare
+loader.nbatches = loader.nbatchesShakespeare
+loader.y_batches = loader.y_batchesShakespeare
+if split_sizes[3] == 0 then 
+  -- catch a common special case where the user might not want a test set
+  loader.ntrain = math.floor(loader.nbatches * split_sizes[1])
+  loader.nval = loader.nbatches - loader.ntrain
+  loader.ntest = 0
+else
+  -- divide data to train/val and allocate rest to test
+  loader.ntrain = math.floor(loader.nbatches * split_sizes[1])
+  loader.nval = math.floor(loader.nbatches * split_sizes[2])
+  loader.ntest = loader.nbatches - loader.nval - loader.ntrain -- the rest goes to test (to ensure this adds up exactly)
+end
+
+loader.split_sizes = {loader.ntrain, loader.nval, loader.ntest}
+loader.batch_ix = {0,0,0}--]]
+
 local vocab_size = loader.vocab_size  -- the number of distinct characters
 local vocab = loader.vocab_mapping
 print('vocab size: ' .. vocab_size)
@@ -204,6 +223,7 @@ end
 
 -- preprocessing helper function
 function prepro(x,y)
+    print(x)
     x = x:transpose(1,2):contiguous() -- swap the axes for faster indexing
     y = y:transpose(1,2):contiguous()
     if opt.gpuid >= 0 and opt.opencl == 0 then -- ship the input arrays to GPU
@@ -308,7 +328,8 @@ local iterations = opt.max_epochs * loader.ntrain
 local iterations_per_epoch = loader.ntrain
 local loss0 = nil
 for i = 1, iterations do
-    --[[if i == 1 then
+    --[[
+    if i == 1 then
       loader.x_batches = loader.x_batchesShakespeare
       loader.nbatches = loader.nbatchesShakespeare
       loader.y_batches = loader.y_batchesShakespeare
@@ -323,6 +344,9 @@ for i = 1, iterations do
         loader.nval = math.floor(loader.nbatches * split_sizes[2])
         loader.ntest = loader.nbatches - loader.nval - loader.ntrain -- the rest goes to test (to ensure this adds up exactly)
       end
+
+      loader.split_sizes = {loader.ntrain, loader.nval, loader.ntest}
+      loader.batch_ix = {0,0,0}
     end--]]
 
     local epoch = i / loader.ntrain
